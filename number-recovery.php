@@ -1,7 +1,7 @@
 <?php
-require_once 'vendor/autoload.php';
+require_once __DIR__ . 'vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::create(__DIR__);
+$dotenv = \Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
 $urlCrm = getenv('URL_CRM');
 $apiKey = getenv('API_KEY');
