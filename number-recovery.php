@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . 'vendor/autoload.php';
+
+require_once 'vendor/autoload.php';
 
 $dotenv = \Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
@@ -28,14 +29,14 @@ if ($response->isSuccessful()) {
             }
         }
     }
-    var_dump($ordersEmpty);
+    file_put_contents('orders.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'ordersEmpty' => $ordersEmpty], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     foreach ($ordersEmpty as $id) {
         $responseOrdersHistory = $client->request->ordersHistory(['orderId' => $id]);
         foreach ($responseOrdersHistory->history as $history) {
             if (isset($history['order']['number'])) {
                 $responseOrdersEdit = $client->request->ordersEdit(['number' => $history['order']['number'], 'id' => $history['order']['id']], 'id');
-                var_dump($responseOrdersEdit);
+                file_put_contents('response.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'orderId' => $history['order']['id'], 'response' => [$responseOrdersEdit->getStatusCode(), $responseOrdersEdit->isSuccessful(), isset($responseOrdersEdit['errorMsg']) ? $responseOrdersEdit['errorMsg'] : 'not errors']], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
             }
         }
     }

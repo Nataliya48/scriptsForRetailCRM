@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . 'vendor/autoload.php';
+
+require_once 'vendor/autoload.php';
 
 $dotenv = \Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
@@ -28,10 +29,12 @@ if ($response->isSuccessful()) {
             $clientList[] = $customer;
         }
     }
+    file_put_contents('email.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'customerList' => $clientList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     $portions = array_chunk($clientList, 50, true);
     foreach ($portions as $portion){
         $responseСustomersCombine = $client->request->customersCombine($portion, $consolidatedClient);
+        file_put_contents('response.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'customerId' => $consolidatedClient['id'], 'response' => [$responseСustomersCombine->getStatusCode(), $responseСustomersCombine->isSuccessful(), isset($responseСustomersCombine['errorMsg']) ? $responseСustomersCombine['errorMsg'] : 'not errors']], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
     }
 } else {
     echo sprintf(
