@@ -24,6 +24,7 @@ try {
 if ($response->isSuccessful()) {
     $totalPageCount = $response->pagination['totalPageCount'];
     $order = $response->history[0];
+    $responseOrdersCreate = $client->request->ordersCreate($order);
     $ordersList = [];
     $count = 0;
     for ($page = 1; $page <= $totalPageCount; $page++) {
@@ -32,21 +33,27 @@ if ($response->isSuccessful()) {
             $historyList[] = $history;
         }
     }
-    var_dump($order);
-    //file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'history' => $historyList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
-
+    file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'history' => $historyList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
     unset($historyList[0]);
-    foreach ($historyList as $history) {
-        //print_r([$history['field'], $history['newValue']]);
-    }
-    
+
     $xml = simplexml_load_file('objects.xml');
-
+    $fieldCreate = [];
     foreach ($xml->children() as $child) {
-        print_r($child);
+        $fieldCreate[] = $child;
+    }
+    $mapping = [];
+    foreach ($xml->children()->children() as $child) {
+        $mapping[] = $child;
     }
 
-
+    foreach ($historyList as $history) {
+        foreach ($mapping as $field){
+            if ($history['field'] === $field->attributes()['id']){
+                $responseOrdersEdit = $client->request->ordersEdit([$field[0] => $history['newValue'], 'id' => $id], 'id');
+                var_dump('success');
+            }
+        }
+    }
 
 } else {
     echo sprintf(
