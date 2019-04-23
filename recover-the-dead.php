@@ -36,12 +36,18 @@ if ($response->isSuccessful()) {
     //file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'history' => $historyList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     unset($historyList[0]);
-    $xml = simplexml_load_file('objects.xml');
-
     foreach ($historyList as $history) {
-        print_r([$history['field'], $history['newValue']]);
+        //print_r([$history['field'], $history['newValue']]);
     }
     
+    $xml = simplexml_load_file('objects.xml');
+
+    foreach ($xml->children() as $child) {
+        print_r($child);
+    }
+
+
+
 } else {
     echo sprintf(
         "Error: [HTTP-code %s] %s",
