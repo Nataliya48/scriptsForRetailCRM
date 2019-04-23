@@ -32,7 +32,6 @@ if ($response->isSuccessful()) {
             $historyList[] = $history;
         }
     }
-    print_r(['order' => $order]);
     $responseOrdersCreate = $client->request->ordersCreate($order);
     $idNewOrder = $responseOrdersCreate['id'];
     file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'history' => $historyList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
@@ -50,15 +49,22 @@ if ($response->isSuccessful()) {
 
     foreach ($mapping as $field){
         foreach ($historyList as $history) {
-            if ($history['field'] == $field->attributes()['id'] && $history['newValue'] != null){
+            if ($history['field'] == $field->attributes()['id'] && $history['newValue'] !== null){
                 $responseOrdersEdit = $client->request->ordersEdit([$field->__toString() => $history['newValue'], 'id' => $idNewOrder], 'id');
-                file_put_contents('response.log', json_encode(
+                file_put_contents('edit.log', json_encode(
                     ['DATE' => date('Y-m-d H:i:s'),
                         'fieldHistory' => $history['field'],
                         'fieldAttributes' => $field->attributes()['id'],
                         'newValue' => $history['newValue'],
                         'fieldCRM' => $field->__toString()
                     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+                file_put_contents('responce.log', json_encode([
+                    'DATE' => date('Y-m-d H:i:s'),
+                    'orderId' => $idNewOrder,
+                    'response' => [$responseOrdersEdit->getStatusCode(),
+                        $responseOrdersEdit->isSuccessful(),
+                        isset($responseOrdersEdit['errorMsg']) ? $responseOrdersEdit['errorMsg'] : 'not errors']
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
             }
         }
     }
