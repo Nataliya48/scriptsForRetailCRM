@@ -13,7 +13,7 @@ $client = new \RetailCrm\ApiClient(
     \RetailCrm\ApiClient::V5
 );
 
-$id = 1106;
+$id = 1118;
 
 try {
     $response = $client->request->ordersHistory(['orderId' => $id], null, 20);
@@ -34,6 +34,7 @@ if ($response->isSuccessful()) {
     }
     print_r(['order' => $order]);
     $responseOrdersCreate = $client->request->ordersCreate($order);
+    $idNewOrder = $responseOrdersCreate['id'];
     file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'history' => $historyList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
     unset($historyList[0]);
 
@@ -49,9 +50,15 @@ if ($response->isSuccessful()) {
 
     foreach ($mapping as $field){
         foreach ($historyList as $history) {
-            if ($history['field'] == $field->attributes()['id']){
-                $responseOrdersEdit = $client->request->ordersEdit([$field->__toString() => $history['newValue'], 'id' => $id], 'id');
-                file_put_contents('response.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'fieldHistory' => $history['field'], 'fieldAttributes' => $field->attributes()['id'], 'newValue' => $history['newValue'], 'fieldCRM' => $field->__toString()], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+            if ($history['field'] == $field->attributes()['id'] && $history['newValue'] != null){
+                $responseOrdersEdit = $client->request->ordersEdit([$field->__toString() => $history['newValue'], 'id' => $idNewOrder], 'id');
+                file_put_contents('response.log', json_encode(
+                    ['DATE' => date('Y-m-d H:i:s'),
+                        'fieldHistory' => $history['field'],
+                        'fieldAttributes' => $field->attributes()['id'],
+                        'newValue' => $history['newValue'],
+                        'fieldCRM' => $field->__toString()
+                    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
             }
         }
     }
