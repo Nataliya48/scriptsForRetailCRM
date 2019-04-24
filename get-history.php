@@ -1,8 +1,8 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::create(__DIR__);
+$dotenv = \Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
 $urlCrm = getenv('URL_CRM');
 $apiKey = getenv('API_KEY');
@@ -29,12 +29,24 @@ if ($response->isSuccessful()) {
             $ordersList[] = $order['id'];
         }
     }
-    file_put_contents('ordersId.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'ordersLd' => $ordersList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+    file_put_contents(__DIR__ . '/ordersId.log', json_encode([
+        'date' => date('Y-m-d H:i:s'),
+        'ordersLd' => $ordersList
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     for ($page = 1; $page <= $totalPageCount; $page++) {
         foreach ($ordersList as $id) {
             $responseOrdersHistory = $client->request->ordersHistory(['orderId' => $id]);
-            file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'orderId' => $id, 'history' => $responseOrdersHistory['history'], 'response' => [$responseOrdersHistory->getStatusCode(), $responseOrdersHistory->isSuccessful(), isset($responseOrdersHistory['errorMsg']) ? $responseOrdersHistory['errorMsg'] : 'not errors']], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+            file_put_contents(__DIR__ . '/history.log', json_encode([
+                'date' => date('Y-m-d H:i:s'),
+                'orderId' => $id,
+                'history' => $responseOrdersHistory['history'],
+                'response' => [
+                    $responseOrdersHistory->getStatusCode(),
+                    $responseOrdersHistory->isSuccessful(),
+                    isset($responseOrdersHistory['errorMsg']) ? $responseOrdersHistory['errorMsg'] : 'not errors'
+                ]
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
         }
     }
 } else {

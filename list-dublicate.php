@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 $dotenv = \Dotenv\Dotenv::create(__DIR__);
@@ -35,6 +36,7 @@ if ($response->isSuccessful()) {
         }
     }
     file_put_contents(__DIR__ . '/dublicateList.txt', json_encode([
+        'date' => date('Y-m-d H:i:s'),
         'emailList' => $emailList,
         'phoneList' => $phoneList
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
@@ -49,6 +51,7 @@ if ($response->isSuccessful()) {
         $responseCustomersListEmail = $client->request->customersList(['email' => $email]);
         foreach ($responseCustomersListEmail->customers as $customer) {
             file_put_contents(__DIR__ . '/customersEmail.txt', json_encode([
+                'date' => date('Y-m-d H:i:s'),
                 'id' => $customer['id'],
                 'email' => $customer['email'],
                 'firstName' => $customer['firstName'] ?? '',
@@ -68,6 +71,7 @@ if ($response->isSuccessful()) {
         foreach ($responseCustomersListEmail->customers as $customer) {
             foreach ($customer['phones'] as $phone) {
                 file_put_contents(__DIR__ . '/customersPhone.txt', json_encode([
+                    'date' => date('Y-m-d H:i:s'),
                     'id' => $customer['id'],
                     'phone' => $phone,
                     'firstName' => $customer['firstName'] ?? '',

@@ -1,8 +1,8 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::create(__DIR__);
+$dotenv = \Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
 $urlCrm = getenv('URL_CRM');
 $apiKey = getenv('API_KEY');
@@ -34,7 +34,10 @@ if ($response->isSuccessful()) {
     }
     $responseOrdersCreate = $client->request->ordersCreate($order);
     $idNewOrder = $responseOrdersCreate['id'];
-    file_put_contents('history.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'history' => $historyList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+    file_put_contents(__DIR__ . '/history.log', json_encode([
+        'DATE' => date('Y-m-d H:i:s'),
+        'history' => $historyList
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
     unset($historyList[0]);
 
     $xml = simplexml_load_file('objects.xml');
@@ -51,15 +54,15 @@ if ($response->isSuccessful()) {
         foreach ($mapping as $field) {
             if ($history['field'] == $field->attributes()['id'] && $history['newValue'] !== null) {
                 $responseOrdersEdit = $client->request->ordersEdit([$field->__toString() => $history['newValue'], 'id' => $idNewOrder], 'id');
-                file_put_contents('edit.log', json_encode(
-                    ['DATE' => date('Y-m-d H:i:s'),
-                        'fieldHistory' => $history['field'],
-                        'fieldAttributes' => $field->attributes()['id'],
-                        'newValue' => $history['newValue'],
-                        'fieldCRM' => $field->__toString()
-                    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
-                file_put_contents('responce.log', json_encode([
-                    'DATE' => date('Y-m-d H:i:s'),
+                file_put_contents(__DIR__ . '/edit.log', json_encode([
+                    'date' => date('Y-m-d H:i:s'),
+                    'fieldHistory' => $history['field'],
+                    'fieldAttributes' => $field->attributes()['id'],
+                    'newValue' => $history['newValue'],
+                    'fieldCRM' => $field->__toString()
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+                file_put_contents(__DIR__ . '/responce.log', json_encode([
+                    'date' => date('Y-m-d H:i:s'),
                     'orderId' => $idNewOrder,
                     'response' => [$responseOrdersEdit->getStatusCode(),
                         $responseOrdersEdit->isSuccessful(),
@@ -68,7 +71,6 @@ if ($response->isSuccessful()) {
             }
         }
     }
-
 } else {
     echo sprintf(
         "Error: [HTTP-code %s] %s",

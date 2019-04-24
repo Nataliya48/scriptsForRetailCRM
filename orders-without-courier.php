@@ -1,8 +1,8 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::create(__DIR__);
+$dotenv = \Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
 $urlCrm = getenv('URL_CRM');
 $apiKey = getenv('API_KEY');
@@ -28,14 +28,20 @@ if ($response->isSuccessful()) {
             $ordersList[] = $order['id'];
         }
     }
-    file_put_contents('ordersId.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'ordersId' => $ordersList], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+    file_put_contents(__DIR__ . '/ordersId.log', json_encode([
+        'date' => date('Y-m-d H:i:s'),
+        'ordersId' => $ordersList
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     $idsCouriers = [];
     $responseCouriersList = $client->request->couriersList();
     foreach ($responseCouriersList->couriers as $courier){
         $idsCouriers[] = $courier['id'];
     }
-    file_put_contents('idsCouriers.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'idsCouriers' => $idsCouriers], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+    file_put_contents(__DIR__ . '/idsCouriers.log', json_encode([
+        'date' => date('Y-m-d H:i:s'),
+        'idsCouriers' => $idsCouriers
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     $responseOrdersListCouriers = $client->request->ordersList(['couriers' => $idsCouriers], null, 20);
     $totalPageCountCouriers = $responseOrdersListCouriers->pagination['totalPageCount'];
@@ -45,10 +51,16 @@ if ($response->isSuccessful()) {
             $ordersListCouriers[] = $order['id'];
         }
     }
-    file_put_contents('ordersListCouriers.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'idsOrdersCouriers' => $ordersListCouriers], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+    file_put_contents(__DIR__ . '/ordersListCouriers.log', json_encode([
+        'date' => date('Y-m-d H:i:s'),
+        'idsOrdersCouriers' => $ordersListCouriers
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 
     $result = array_diff($ordersList, $ordersListCouriers);
-    file_put_contents('resultListOrders.log', json_encode(['DATE' => date('Y-m-d H:i:s'), 'ordersId' => $result], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
+    file_put_contents(__DIR__ . '/resultListOrders.log', json_encode([
+        'date' => date('Y-m-d H:i:s'),
+        'ordersId' => $result
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), FILE_APPEND);
 } else {
     echo sprintf(
         "Error: [HTTP-code %s] %s",
