@@ -38,18 +38,18 @@ if ($response->isSuccessful()) {
     unset($historyList[0]);
 
     $xml = simplexml_load_file('objects.xml');
-    $fieldCreate = [];
+    /*$fieldCreate = [];
     foreach ($xml->children() as $child) {
         $fieldCreate[] = $child;
-    }
+    }*/
     $mapping = [];
     foreach ($xml->children()->children() as $child) {
         $mapping[] = $child;
     }
 
-    foreach ($mapping as $field){
-        foreach ($historyList as $history) {
-            if ($history['field'] == $field->attributes()['id'] && $history['newValue'] !== null){
+    foreach ($historyList as $history) {
+        foreach ($mapping as $field) {
+            if ($history['field'] == $field->attributes()['id'] && $history['newValue'] !== null) {
                 $responseOrdersEdit = $client->request->ordersEdit([$field->__toString() => $history['newValue'], 'id' => $idNewOrder], 'id');
                 file_put_contents('edit.log', json_encode(
                     ['DATE' => date('Y-m-d H:i:s'),
