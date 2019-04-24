@@ -1,5 +1,6 @@
 {
     "require": {
+        "php": ">=7",
         "retailcrm/api-client-php": "~5.0",
         "vlucas/phpdotenv": "^3.3"
     }
